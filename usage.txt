@@ -1,0 +1,32 @@
+usage: hip <action> [<args>]
+
+hip automatically generates the boilerplate code for creating new projects that
+use React, Typescript and Eslint + Prettier. It also allows for the generation
+of new objects, such as Components, Contexts, Pages and Models.
+
+Actions are top level commands that dictate what hip should do, currently there
+are two that have been implemented:
+
+    init    Creates a new project.
+    new     Creates a new object.
+
+The 'init' requires the name of the project be provided, and that node and npm
+are installed. It will:
+
+    1. Create the project using 'create-react-app --typescript'.
+    2. Install NodeSass for stylesheets.
+    3. Install ESLint, Prettier, and the plugins required to ensure they work.
+    4. Create a new script to format code in accordance with Prettier's style.
+    5. Remove create-react-app cruft.
+    6. Setip folders for objects.
+
+The 'new' action supports creating a new Component, Page, Model or Context and
+follows a simple convention for where these objects should be created. The
+options are listed below:
+
+    component   Will create a new component in the src/components folder.
+    page        Will create a new page in the src/pages folder.
+    model       Will create a new model in the src/models folder.
+    context     Will create a new context in the src/contexts folder.
+
+When calling 'new' with an object type specified, a name must also be provided. 
