@@ -1,0 +1,10 @@
+import React from "react";
+import styles from "./$NAME$.modules.scss";
+
+const $NAME$: React.FunctionComponent = () => {
+  return null;
+};
+
+export { $NAME$ };
+:::
+export * from "./$NAME$";

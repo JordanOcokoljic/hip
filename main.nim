@@ -18,6 +18,7 @@
 import os
 import strformat
 import json
+import strutils
 
 # help displays the help menu as it is defined in usage.txt
 proc help(): void =
@@ -91,7 +92,7 @@ proc init(name: string): void =
     checkCmdSucceded(res, "install")
 
     echo "hip: creating .eslintrc.js"
-    const eslintrc = staticRead("eslintrc.txt")
+    const eslintrc = staticRead("templates/eslintrc.txt")
     writeFile(".eslintrc.js", eslintrc)
 
     echo "hip: creating .eslintignore"
@@ -115,7 +116,7 @@ proc init(name: string): void =
     ])
 
     echo "hip: writing index.tsx"
-    const index = staticRead("index.txt")
+    const index = staticRead("templates/index.txt")
     writeFile("src/index.tsx", index)
 
     echo "hip: creating object folders"
@@ -126,6 +127,41 @@ proc init(name: string): void =
 
     echo "hip: done"
 
+# parseComponentTemplate will parse the templates/component.txt file and return
+# the strings that make up the two files.
+proc useComponentTemplate(name: string, basePath: string): void = 
+    const componentTemplate = staticRead("templates/component.txt")
+    let parts = split(replace(componentTemplate, "$NAME$", name), ":::")
+    createDir(basePath)
+    writeFile(&"{basePath}/{name}.tsx", strip(parts[0]))
+    writeFile(&"{basePath}/index.ts", strip(parts[1]))
+    writeFile(&"{basePath}/{name}.module.scss", "")
+
+# useSingleFileTemplate will replace the $NAME$ identifier in the templates
+# before writing the files to the base path provided.
+proc useSingleFileTemplate(tmpl: string, name: string, path: string): void =
+    let code = replace(tmpl, "$NAME$", name)
+    createDir(path)
+    writeFile(&"{path}/{name}.ts", code)
+
+# newObject will create a new project object based on the parameters passed to
+# it.
+proc newObject(objType: string, name: string): void = 
+    if fileExists("package.json") == false:
+        writeErrorAndQuit("action 'new' must be run from project root.")
+
+    case objType:
+    of "component", "page":
+        useComponentTemplate(name, &"src/components/{name}")
+    of "model":
+        const modelTemplate = staticRead("templates/model.txt")
+        useSingleFileTemplate(modelTemplate, name, &"src/components/{name}")
+    of "context":
+        const contextTemplate = staticRead("templates/context.txt")
+        useSingleFileTemplate(contextTemplate, name, &"src/contexts/{name}")
+    else:
+        writeErrorAndQuit(&"'{objType}' is not a valid object type")
+
 # Program begins here
 var action: string = "help"
 if paramCount() != 0:
@@ -135,8 +171,11 @@ case action
 of "init":
     let name = safeGetArg(2, "init needs a name for the project.")
     init(name)
+of "new":
+    let objType = safeGetArg(2, "new needs an object type to create")
+    let name = safeGetArg(3, "new needs a name for the object")
+    newObject(objType, name)
 of "help":
     help()
 else:
-    echo "hip: '", action, "' is not an action. See 'hip help'."
-    quit(0)
+    writeErrorAndQuit(&"'{action}' is not a valid action.")

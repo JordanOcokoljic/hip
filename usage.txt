@@ -18,7 +18,7 @@ are installed. It will:
     3. Install ESLint, Prettier, and the plugins required to ensure they work.
     4. Create a new script to format code in accordance with Prettier's style.
     5. Remove create-react-app cruft.
-    6. Setip folders for objects.
+    6. Setup folders for objects.
 
 The 'new' action supports creating a new Component, Page, Model or Context and
 follows a simple convention for where these objects should be created. The
@@ -29,4 +29,6 @@ options are listed below:
     model       Will create a new model in the src/models folder.
     context     Will create a new context in the src/contexts folder.
 
-When calling 'new' with an object type specified, a name must also be provided. 
+When calling 'new' with an object type specified a name must also be provided,
+and it must be called from the project root (directory where package.json is
+located).

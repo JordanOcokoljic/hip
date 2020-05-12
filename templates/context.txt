@@ -1,0 +1,11 @@
+import { createContext } from "react";
+
+type I$NAME$ = {
+
+};
+
+const $NAME$ = createContext<I$NAME$>({
+
+});
+
+export { I$NAME$, $NAME$ };
