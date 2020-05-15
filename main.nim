@@ -114,6 +114,13 @@ proc init(name: string): void =
         "src/index.tsx"
     ])
 
+    removeDir("public")
+
+    echo "hip: writing index.html"
+    const html = staticRead("templates/html.txt")
+    createDir("public")
+    writeFile("public/index.html", html)
+
     echo "hip: writing index.tsx"
     const index = staticRead("templates/index.txt")
     writeFile("src/index.tsx", index)
