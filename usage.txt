@@ -9,6 +9,7 @@ are two that have been implemented:
 
     init    Creates a new project.
     new     Creates a new object.
+    format  Runs the format script defined in init with the --silent option.
 
 The 'init' requires the name of the project be provided, and that node and npm
 are installed. It will:

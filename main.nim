@@ -78,11 +78,10 @@ proc init(name: string): void =
     res = execShellCmd(prepareInstallCommand(@["node-sass"]))
     checkCmdSucceded(res, "install")
 
-    echo "hip: installing ESLint, Prettier and plugins"
+    echo "hip: installing Prettier and ESLint plugins"
     res = execShellCmd(prepareInstallCommand(@[
         "@typescript-eslint/eslint-plugin",
         "@typescript-eslint/parser",
-        "eslint",
         "eslint-config-prettier",
         "eslint-plugin-prettier",
         "eslint-plugin-react",
@@ -162,6 +161,11 @@ proc newObject(objType: string, name: string): void =
     else:
         writeErrorAndQuit(&"'{objType}' is not a valid object type")
 
+# runFormat will execute the format script that init defines in package.json,
+# but will use the --silent option to avoid npm's noise.
+proc runFormat(): void =
+    discard execShellCmd("npm run format --silent")
+
 # Program begins here
 var action: string = "help"
 if paramCount() != 0:
@@ -175,6 +179,8 @@ of "new":
     let objType = safeGetArg(2, "new needs an object type to create")
     let name = safeGetArg(3, "new needs a name for the object")
     newObject(objType, name)
+of "format":
+    runFormat()
 of "help":
     help()
 else:
