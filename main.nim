@@ -20,6 +20,9 @@ import strformat
 import json
 import strutils
 
+# Reading templates that are used more than once in the application.
+const componentTemplate = staticRead("templates/component.txt")
+
 # help displays the help menu as it is defined in usage.txt
 proc help(): void =
     const usage = staticRead("usage.txt")
@@ -125,6 +128,10 @@ proc init(name: string): void =
     const index = staticRead("templates/index.txt")
     writeFile("src/index.tsx", index)
 
+    echo "hip: writing App.tsx"
+    let parts = split(replace(componentTemplate, "$NAME$", "App"), ":::")
+    writeFile("src/App.tsx", parts[0])
+
     echo "hip: creating object folders"
     createDir("src/components")
     createDir("src/pages")
@@ -136,7 +143,6 @@ proc init(name: string): void =
 # parseComponentTemplate will parse the templates/component.txt file and return
 # the strings that make up the two files.
 proc useComponentTemplate(name: string, basePath: string): void = 
-    const componentTemplate = staticRead("templates/component.txt")
     let parts = split(replace(componentTemplate, "$NAME$", name), ":::")
     createDir(basePath)
     writeFile(&"{basePath}/{name}.tsx", strip(parts[0]))
