@@ -29,6 +29,7 @@ the project.
 5. Delete the `create-react-app` cruft, please note that this removes
 `serviceWorker.ts` but it can be added back manually afterwards.
 6. Sets up the folders for Components, Pages, Models and Contexts.
+7. Setup an App component and add it to the index.tsx.
 
 ### Creating an Object
 Hip also generates objects such as Components, Pages, Models and Contexts. To

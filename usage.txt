@@ -20,6 +20,7 @@ are installed. It will:
     4. Create a new script to format code in accordance with Prettier's style.
     5. Remove create-react-app cruft.
     6. Setup folders for objects.
+    7. Setup an App component in 'src/'.
 
 The 'new' action supports creating a new Component, Page, Model or Context and
 follows a simple convention for where these objects should be created. The
