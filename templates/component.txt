@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./$NAME$.modules.scss";
+import styles from "./$NAME$.module.scss";
 
 const $NAME$: React.FunctionComponent = () => {
   return null;
