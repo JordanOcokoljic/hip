@@ -164,7 +164,7 @@ proc newObject(objType: string, name: string): void =
 
     case objType:
     of "component", "page":
-        useComponentTemplate(name, &"src/components/{name}")
+        useComponentTemplate(name, &"src/{objType}s/{name}")
     of "model":
         const modelTemplate = staticRead("templates/model.txt")
         useSingleFileTemplate(modelTemplate, name, &"src/components/{name}")
