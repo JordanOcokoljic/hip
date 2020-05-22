@@ -8,4 +8,5 @@ const $NAME$ = createContext<I$NAME$>({
 
 });
 
-export { I$NAME$, $NAME$ };
+export type { I$NAME$ };
+export { $NAME$ };
