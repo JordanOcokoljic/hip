@@ -167,10 +167,10 @@ proc newObject(objType: string, name: string): void =
         useComponentTemplate(name, &"src/{objType}s/{name}")
     of "model":
         const modelTemplate = staticRead("templates/model.txt")
-        useSingleFileTemplate(modelTemplate, name, &"src/models/{name}")
+        useSingleFileTemplate(modelTemplate, name, &"src/models")
     of "context":
         const contextTemplate = staticRead("templates/context.txt")
-        useSingleFileTemplate(contextTemplate, name, &"src/contexts/{name}")
+        useSingleFileTemplate(contextTemplate, name, &"src/contexts")
     else:
         writeErrorAndQuit(&"'{objType}' is not a valid object type")
 
