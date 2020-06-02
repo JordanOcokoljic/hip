@@ -5,7 +5,7 @@ use React, Typescript and Eslint + Prettier. It also allows for the generation
 of new objects, such as Components, Contexts, Pages and Models.
 
 Actions are top level commands that dictate what hip should do, currently there
-are two that have been implemented:
+are three that have been implemented:
 
     init    Creates a new project.
     new     Creates a new object.
