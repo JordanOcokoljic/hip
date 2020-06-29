@@ -129,8 +129,8 @@ proc init(name: string): void =
     writeFile("src/index.tsx", index)
 
     echo "hip: writing App.tsx"
-    let parts = split(replace(componentTemplate, "$NAME$", "App"), ":::")
-    writeFile("src/App.tsx", parts[0])
+    const appTemplate = staticRead("templates/app.txt")
+    writeFile("src/App.tsx", appTemplate)
 
     echo "hip: creating object folders"
     createDir("src/components")
