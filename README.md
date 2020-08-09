@@ -33,4 +33,4 @@ Hip is licensed under the the GPLv3 license. However, because it generates code
 and copies it into the projects it is used to create an exception has been made
 to allow projects that contain those file to be distributed under any terms
 that project's maintainer chooses. If you have any questions about this, or are
-unsure if you can use Zap, please do not hesitate to contact me.
+unsure if you can use Hip, please do not hesitate to contact me.
