@@ -18,16 +18,6 @@
 import os
 import strformat
 import json
-import strutils
-
-# Reading templates that are used more than once in the application.
-const componentTemplate = staticRead("templates/component.txt")
-
-# help displays the help menu as it is defined in usage.txt
-proc help(): void =
-    const usage = staticRead("usage.txt")
-    echo usage
-    quit(0)
 
 # prepareInstallCommand will generate a string containg the full command
 # required to install all the npm packages as specified by provided sequence.
@@ -38,9 +28,61 @@ proc prepareInstallCommand(packages: seq[string]): string =
 
     return cmd
 
+# checkInstallSucceeded will check that status provided to it is 0, and if it
+# is not, will inform the user and terminate the application.
+proc checkCmdSucceded(status: int, cmd: string): void =
+    if status != 0:
+        echo &"{cmd} exited with a non 0 status code"
+        quit(status)
+
+# init will use npx to run create-react-app and then install the other packages
+# required to develop the project.
+proc init(name: string): void =
+    var res: int
+
+    echo "hip: running create-react-app"
+    res = execShellCmd(&"npx create-react-app {name} --template typescript")
+    checkCmdSucceded(res, "create-react-app")
+
+    echo "hip: moving to project folder"
+    setCurrentDir(name)
+
+    echo "hip: installing packages"
+    res = execShellCmd(prepareInstallCommand(@[
+        "prettier",
+        "eslint-config-prettier",
+        "eslint-plugin-prettier",
+        "styled-components",
+        "@types/styled-components"
+    ]))
+    checkCmdSucceded(res, "installing packages")
+
+    echo "hip: adding .eslintrc.json"
+    const eslintrc = staticRead("eslint.json")
+    writeFile(".eslintrc.json", eslintrc)
+
+    echo "hip: updating package.json"
+    let package = parseFile("package.json")
+    let formatScript = %"tsc && eslint . --fix --ext .ts,.tsx"
+    add(package["scripts"], "format", formatScript)
+    delete(package, "eslintConfig")
+    writeFile("package.json", package.pretty())
+
+    echo "hip: done"
+
+# format will run the created npm format script but with the silent flag
+proc format(): void =
+    discard execShellCmd("npm run format --silent")
+
+# help displays the help menu as it is defined in usage.txt
+proc help(): void =
+    const usage = staticRead("usage.txt")
+    echo usage
+    quit(0)
+
 # writeErrorAndQuit will echo an error before terminating the application.
 proc writeErrorAndQuit(msg: string): void =
-    echo "hip: ", msg, " See 'hip help'."
+    echo &"hip: {msg} See 'hip help'."
     quit(0)
 
 # safeGetArg will attempt to get the argument passed to the program at the
@@ -50,150 +92,21 @@ proc writeErrorAndQuit(msg: string): void =
 proc safeGetArg(pos: int, err: string): string =
     if paramCount() < pos:
         writeErrorAndQuit(err)
+        quit(0)
 
     return paramStr(pos)
-
-# checkInstallSucceeded will check that status provided to it is 0, and if it
-# is not, will inform the user and terminate the application.
-proc checkCmdSucceded(status: int, cmd: string): void =
-    if status != 0:
-        echo &"{cmd} exited with a non 0 status code"
-        quit(status)
-
-# removeFiles will remove all the files in the provided sequence.
-proc removeFiles(files: seq[string]): void =
-    for i, file in files:
-        removeFile(file)
-
-# init creates a new React application in accordance with the steps provided by
-# the usage guide.
-proc init(name: string): void =
-    var res: int
-
-    echo "hip: running create-react-app"
-    res = execShellCmd(&"npx create-react-app {name} --template typescript")
-    checkCmdSucceded(res, "create-react-app")
-
-    echo "hip: moving into project folder"
-    setCurrentDir(name)
-
-    echo "hip: installing node-sass"
-    res = execShellCmd(prepareInstallCommand(@["node-sass"]))
-    checkCmdSucceded(res, "install")
-
-    echo "hip: installing Prettier and ESLint plugins"
-    res = execShellCmd(prepareInstallCommand(@[
-        "@typescript-eslint/eslint-plugin",
-        "@typescript-eslint/parser",
-        "eslint-config-prettier",
-        "eslint-plugin-prettier",
-        "eslint-plugin-react",
-        "prettier"
-    ]))
-
-    checkCmdSucceded(res, "install")
-
-    echo "hip: creating .eslintrc.js"
-    const eslintrc = staticRead("templates/eslintrc.txt")
-    writeFile(".eslintrc.js", eslintrc)
-
-    echo "hip: creating .eslintignore"
-    writeFile(".eslintignore", "build/*")
-
-    echo "hip: adding format script to package.json"
-    let package = parseFile("package.json")
-    let formatValue = %"eslint . --ext .ts,.tsx --fix"
-    add(package["scripts"], "format", formatValue)
-    writeFile("package.json", package.pretty())
-
-    echo "hip: deleting React boilerplate"
-    removeFiles(@[
-        "src/logo.svg",
-        "src/serviceWorker.ts",
-        "src/App.css",
-        "src/App.test.tsx",
-        "src/App.tsx",
-        "src/index.css",
-        "src/index.tsx"
-    ])
-
-    removeDir("public")
-
-    echo "hip: writing index.html"
-    const html = staticRead("templates/html.txt")
-    createDir("public")
-    writeFile("public/index.html", html)
-
-    echo "hip: writing index.tsx"
-    const index = staticRead("templates/index.txt")
-    writeFile("src/index.tsx", index)
-
-    echo "hip: writing App.tsx"
-    const appTemplate = staticRead("templates/app.txt")
-    writeFile("src/App.tsx", appTemplate)
-
-    echo "hip: creating object folders"
-    createDir("src/components")
-    createDir("src/pages")
-    createDir("src/contexts")
-    createDir("src/models")
-
-    echo "hip: done"
-
-# parseComponentTemplate will parse the templates/component.txt file and return
-# the strings that make up the two files.
-proc useComponentTemplate(name: string, basePath: string): void = 
-    let parts = split(replace(componentTemplate, "$NAME$", name), ":::")
-    createDir(basePath)
-    writeFile(&"{basePath}/{name}.tsx", strip(parts[0]))
-    writeFile(&"{basePath}/index.ts", strip(parts[1]))
-    writeFile(&"{basePath}/{name}.module.scss", "")
-
-# useSingleFileTemplate will replace the $NAME$ identifier in the templates
-# before writing the files to the base path provided.
-proc useSingleFileTemplate(tmpl: string, name: string, path: string): void =
-    let code = replace(tmpl, "$NAME$", name)
-    createDir(path)
-    writeFile(&"{path}/{name}.ts", code)
-
-# newObject will create a new project object based on the parameters passed to
-# it.
-proc newObject(objType: string, name: string): void = 
-    if fileExists("package.json") == false:
-        writeErrorAndQuit("action 'new' must be run from project root.")
-
-    case objType:
-    of "component", "page":
-        useComponentTemplate(name, &"src/{objType}s/{name}")
-    of "model":
-        const modelTemplate = staticRead("templates/model.txt")
-        useSingleFileTemplate(modelTemplate, name, &"src/models")
-    of "context":
-        const contextTemplate = staticRead("templates/context.txt")
-        useSingleFileTemplate(contextTemplate, name, &"src/contexts")
-    else:
-        writeErrorAndQuit(&"'{objType}' is not a valid object type")
-
-# runFormat will execute the format script that init defines in package.json,
-# but will use the --silent option to avoid npm's noise.
-proc runFormat(): void =
-    discard execShellCmd("npm run format --silent")
 
 # Program begins here
 var action: string = "help"
 if paramCount() != 0:
     action = paramStr(1)
 
-case action
+case action:
 of "init":
-    let name = safeGetArg(2, "init needs a name for the project.")
+    let name = safeGetArg(2, "init needs a name for the project")
     init(name)
-of "new":
-    let objType = safeGetArg(2, "new needs an object type to create")
-    let name = safeGetArg(3, "new needs a name for the object")
-    newObject(objType, name)
 of "format":
-    runFormat()
+    format()
 of "help":
     help()
 else:

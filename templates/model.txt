@@ -1,7 +1,0 @@
-class $NAME$ {
-    constructor() {
-
-    }
-}
-
-export { $NAME$ };
